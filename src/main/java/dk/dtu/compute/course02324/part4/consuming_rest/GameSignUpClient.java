@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Objects;
 
 public class GameSignUpClient extends Application {
 
@@ -30,6 +31,10 @@ public class GameSignUpClient extends Application {
         Button addGameButton = new Button("Add new game...");
         addGameButton.setOnAction(e -> showAddGameDialog());
         root.getChildren().add(addGameButton);
+
+        Button openGamesButton = new Button("Open games...");
+        openGamesButton.setOnAction(e -> showOpenGamesDialog());
+        root.getChildren().add(openGamesButton);
 
         gameListBox = new VBox(10);
         updateGameList();
@@ -51,6 +56,9 @@ public class GameSignUpClient extends Application {
             Label name = new Label("Game: " + game.getName());
             Label minPlayers = new Label("Min players: " + game.getMinPlayers());
             Label maxPlayers = new Label("Max players: " + game.getMaxPlayers());
+            Label state = new Label("State: " + game.getState());
+            //Label creator = new Label("Creator: " + game.getCreator().getName());
+            //gameBox.getChildren().addAll(name, minPlayers, maxPlayers, state);
             Button signUpButton = new Button("← Sign up");
             signUpButton.setOnAction(e -> showSignUpDialog(game));
 
@@ -60,7 +68,7 @@ public class GameSignUpClient extends Application {
                 playersListView.getItems().add(p.getName());
             }
 
-            gameBox.getChildren().addAll(name, minPlayers, maxPlayers, signUpButton,playersListView);
+            gameBox.getChildren().addAll(name, minPlayers, maxPlayers, state, signUpButton,playersListView);
             gameListBox.getChildren().add(gameBox);
         }
     }
@@ -89,6 +97,7 @@ public class GameSignUpClient extends Application {
                 newGame.setName(nameField.getText());
                 newGame.setMinPlayers(Integer.parseInt(minField.getText()));
                 newGame.setMaxPlayers(Integer.parseInt(maxField.getText()));
+                newGame.setState("OPEN");
                 return newGame;
             }
             return null;
@@ -98,6 +107,67 @@ public class GameSignUpClient extends Application {
             client.post().uri("/game").body(game).retrieve().toBodilessEntity();
             updateGameList();
         });
+    }
+
+    private void showOpenGamesDialog() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Show Online Games");
+
+        VBox gamesBox = new VBox(10);
+        gamesBox.setPadding(new Insets(10));
+        ScrollPane scrollPane = new ScrollPane(gamesBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(400);
+
+        try {
+            // Get all games first
+            HALWrapperGames wrapper = client.get().uri("/game").retrieve().body(HALWrapperGames.class);
+
+            if (wrapper == null || wrapper.getGames() == null) {
+                gamesBox.getChildren().add(new Label("Error loading games from server"));
+                System.out.println("Error: Received null from API");
+            } else {
+                // Filter open games
+                List<Game> openGames = wrapper.getGames().stream()
+                        .filter(game -> "OPEN".equals(game.getState()))
+                        .toList();
+
+                System.out.println("Total games: " + wrapper.getGames().size());
+                System.out.println("Open games: " + openGames.size());
+
+                if (openGames.isEmpty()) {
+                    gamesBox.getChildren().add(new Label("No open games available"));
+                } else {
+                    for (Game game : openGames) {
+                        VBox gameBox = new VBox(5);
+                        gameBox.setStyle("-fx-border-color: lightgray; -fx-padding: 5;");
+
+                        Label name = new Label("Game: " + game.getName());
+                        Label minPlayers = new Label("Min players: " + game.getMinPlayers());
+                        Label maxPlayers = new Label("Max players: " + game.getMaxPlayers());
+                        Label state = new Label("State: " + game.getState());
+
+                        Button signUpButton = new Button("Sign up for this game");
+                        signUpButton.setOnAction(e -> {
+                            dialog.close();
+                            showSignUpDialog(game);
+                        });
+
+                        gameBox.getChildren().addAll(name, minPlayers, maxPlayers, state, signUpButton);
+                        gamesBox.getChildren().add(gameBox);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            gamesBox.getChildren().add(new Label("Error loading games: " + e.getMessage()));
+            e.printStackTrace();
+        }
+
+        dialog.getDialogPane().setContent(scrollPane);
+        ButtonType closeButton = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(closeButton);
+
+        dialog.showAndWait();
     }
 
     private void showSignUpDialog(Game game) {
