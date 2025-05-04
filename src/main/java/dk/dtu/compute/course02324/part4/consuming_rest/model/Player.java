@@ -2,7 +2,6 @@ package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -13,6 +12,8 @@ public class Player {
     private String name;
 
     private Game game;
+
+    private boolean isOnline;
 
     private User user;
 
@@ -49,6 +50,7 @@ public class Player {
     public void setUser(User user) {
         this.user = user;
     }
+
     @Override
     public String toString() {
         return "Player{" +

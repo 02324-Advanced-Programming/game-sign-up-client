@@ -1,8 +1,8 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.wrappers;
 
 
-import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 
 import java.util.List;
 

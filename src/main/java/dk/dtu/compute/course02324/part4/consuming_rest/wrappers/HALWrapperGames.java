@@ -3,8 +3,9 @@ package dk.dtu.compute.course02324.part4.consuming_rest.wrappers;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HALWrapperGames {
@@ -17,7 +18,8 @@ public class HALWrapperGames {
         this.embedded = new Embedded(games);
     }
 
-    public HALWrapperGames() {}
+    public HALWrapperGames() {
+    }
 
     public List<Game> getGames() {
         if (embedded != null && embedded.games != null) {
@@ -31,7 +33,11 @@ public class HALWrapperGames {
         @JsonProperty("games")
         public List<Game> games;
 
-        public Embedded() {}
-        public Embedded(List<Game> games) { this.games = games; }
+        public Embedded() {
+        }
+
+        public Embedded(List<Game> games) {
+            this.games = games;
+        }
     }
 }

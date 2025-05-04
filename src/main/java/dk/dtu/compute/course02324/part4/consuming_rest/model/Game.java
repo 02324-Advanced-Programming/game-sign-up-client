@@ -1,6 +1,7 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

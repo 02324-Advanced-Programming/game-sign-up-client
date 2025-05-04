@@ -1,9 +1,6 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
@@ -16,7 +13,7 @@ public class User {
     //      the other way round (similar to the reference from Game to Player
     //      and the other way round.
 
-//    private List<Player> players;
+    //    private List<Player> players;
     private Player player;
 
     public long getUid() {
@@ -42,6 +39,7 @@ public class User {
     public void setPlayer(Player player) {
         this.player = player;
     }
+
     @Override
     public String toString() {
         return "User{" +
@@ -51,7 +49,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        this.name = username;  
+        this.name = username;
     }
 }
 

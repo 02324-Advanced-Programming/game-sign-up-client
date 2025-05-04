@@ -1,8 +1,8 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.wrappers;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
