@@ -1,28 +1,22 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Game {
 
     private long uid;
-
     private String name;
-
     private int minPlayers;
-
     private int maxPlayers;
 
-    // TODO There could be more attributes here, kie
-    //      in which state is the sign up for the game, did
-    //      the game started or finish (after the game started
-    //      you might not want new players coming in etc.)
-    //      See analogous classes in backend.
+    private GameState state;
+    private User owner;
 
     private List<Player> players;
 
+    private boolean isOpen;
 
     public long getUid() {
         return uid;
@@ -38,10 +32,6 @@ public class Game {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
     }
 
     public int getMinPlayers() {
@@ -60,8 +50,44 @@ public class Game {
         this.maxPlayers = maxPlayers;
     }
 
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public void setPlayers(List<Player> players) {
         this.players = players;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        this.isOpen = open;
+    }
+
+    public User getCreator() {
+        return owner;
+    }
+
+    public void setCreator(User creator) {
+        this.owner = creator;
     }
 
     @Override
@@ -69,9 +95,11 @@ public class Game {
         return "Game{" +
                 "uid=" + uid +
                 ", name='" + name + '\'' +
+                ", state=" + state +
+                ", owner=" + (owner != null ? owner.getName() : "null") +
                 ", minPlayers=" + minPlayers +
                 ", maxPlayers=" + maxPlayers +
-                // ", players=" + players +
+                ", isOpen=" + isOpen +
                 '}';
     }
 }
