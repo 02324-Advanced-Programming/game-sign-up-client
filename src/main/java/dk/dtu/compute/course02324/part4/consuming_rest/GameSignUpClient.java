@@ -14,7 +14,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -92,8 +94,9 @@ public class GameSignUpClient extends Application {
                         BASE_URL + "/users", user, User.class);
                 currentUser = resp.getBody();
                 showAlert("Success", "Registered and signed in as " + currentUser.getName());
-            } catch (RestClientException ex) {
-                showAlert("Error", "Registration failed: " + ex.getMessage());
+            }
+            catch (RestClientException ex) {
+                showAlert("Error", "Registration failed: an unknown error occured " + ex.getMessage());
             }
         });
     }
@@ -111,8 +114,15 @@ public class GameSignUpClient extends Application {
                 );
                 currentUser = response.getBody();
                 showAlert("Success", "Signed in as " + currentUser.getName());
-            } catch (Exception ex) {
-                showAlert("Error", "Sign in failed: " + ex.getMessage());
+            }
+            catch (HttpClientErrorException ex) {
+                //entered username that doesn't exist yet
+                if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    showAlert("Error", "Sign in failed: User not found");
+                }
+            }
+            catch (Exception ex) {
+                showAlert("Error", "Sign in failed: Unknown error occurred " + ex.getMessage());
                 ex.printStackTrace();
             }
         });
