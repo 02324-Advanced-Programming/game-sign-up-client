@@ -113,7 +113,6 @@ public class GameSignUpClient extends Application {
                 showAlert("Success", "Signed in as " + currentUser.getName());
             } catch (Exception ex) {
                 showAlert("Error", "Sign in failed: " + ex.getMessage());
-                ex.printStackTrace();
             }
         });
     }
@@ -225,6 +224,9 @@ public class GameSignUpClient extends Application {
             showAlert("Error", "No game selected");
             return;
         }
+        if (currentUser == null) {
+            showAlert("Error", "You must be signed in to join a game.");
+        }
         if (g.getOwner().getUid() == currentUser.getUid()) {
             showAlert("Error", "Owner cannot join its own game");
             return;
@@ -243,7 +245,6 @@ public class GameSignUpClient extends Application {
             showAlert("Success", "Joined game " + g.getName());
             updateGameList();
         } catch (RestClientException ex) {
-            ex.printStackTrace();
             showAlert("Error", "Join failed: " + ex.getMessage());
         }
     }
@@ -255,19 +256,13 @@ public class GameSignUpClient extends Application {
             showAlert("Error", "No game selected");
             return;
         }
-        Optional<Player> me = g.getPlayers().stream()
-                .filter(p -> p.getUser().getUid() == currentUser.getUid()).findFirst();
-        if (me.isEmpty()) {
-            showAlert("Error", "You are not in that game");
-            return;
-        }
-        long pid = me.get().getUid();
         try {
-            restTemplate.delete(BASE_URL + "/players/" + pid);
+            restTemplate.delete(BASE_URL + "/games/" + g.getUid() + "/leave" + "?userId=" + currentUser.getUid());
             showAlert("Success", "Left game " + g.getName());
             updateGameList();
         } catch (Exception ex) {
             showAlert("Error", "Leave failed: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -309,7 +304,6 @@ public class GameSignUpClient extends Application {
             showAlert("Success", "Started game " + g.getName());
             updateGameList();
         } catch (Exception ex) {
-            ex.printStackTrace();
             showAlert("Error", "Start failed: " + ex.getMessage());
         }
     }
