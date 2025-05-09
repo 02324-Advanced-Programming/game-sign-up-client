@@ -96,19 +96,17 @@ public class GameSignUpClient extends Application {
         return new MenuBar(userMenu, gameMenu);
     }
 
-    // Update sign in/up menu items based on currentUser state
     private void updateSignMenuItems() {
         boolean signedIn = (currentUser != null);
         signUp.setDisable(signedIn);
         signIn.setDisable(signedIn);
         signOut.setDisable(!signedIn);
-
-        // Disable game options if not signed in
         joinGame.setDisable(!signedIn);
         leaveGame.setDisable(!signedIn);
         deleteGame.setDisable(!signedIn);
         startGame.setDisable(!signedIn);
         createGame.setDisable(!signedIn);
+        showGames.setDisable(!signedIn);
     }
 
     private void signUpUser() {
