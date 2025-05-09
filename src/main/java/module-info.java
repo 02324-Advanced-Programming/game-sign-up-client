@@ -18,7 +18,6 @@ module rest_client {
     requires spring.core;
 
     // Export your app’s packages so they can be used by JavaFX and Spring
-    exports dk.dtu.compute.course02324.part4.consuming_rest;
     exports dk.dtu.compute.course02324.part4.consuming_rest.Controller;
     exports dk.dtu.compute.course02324.part4.consuming_rest.View;
     exports dk.dtu.compute.course02324.part4.consuming_rest.model;
