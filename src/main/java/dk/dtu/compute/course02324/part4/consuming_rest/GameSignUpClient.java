@@ -1,7 +1,10 @@
 //package dk.dtu.compute.course02324.part4.consuming_rest;
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 /*import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -235,10 +238,13 @@ public class GameSignUpClient extends Application {
             updateGameList();
         });
     }
+<<<<<<< Updated upstream
 
     public static void main(String[] args) {
         launch();
     }
+=======
+>>>>>>> Stashed changes
 }*/
 
 
