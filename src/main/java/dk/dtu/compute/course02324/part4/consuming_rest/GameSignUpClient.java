@@ -1,5 +1,11 @@
-package dk.dtu.compute.course02324.part4.consuming_rest;
+//package dk.dtu.compute.course02324.part4.consuming_rest;
 
+<<<<<<< Updated upstream
+=======
+/*import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+>>>>>>> Stashed changes
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
@@ -233,7 +239,7 @@ public class GameSignUpClient extends Application {
     public static void main(String[] args) {
         launch();
     }
-}
+}*/
 
 
 //package dk.dtu.compute.course02324.part4.consuming_rest;
