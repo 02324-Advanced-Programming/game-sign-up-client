@@ -293,9 +293,18 @@ public class GameSignUpClient extends Application {
         grid.add(maxField, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
+
+        final int MAX_CAP = 6;
+
         dialog.setResultConverter(btn -> {
             if (btn == createButtonType) {
                 try {
+                    int minPlayers = Integer.parseInt(minField.getText());
+                    int maxPlayers = Integer.parseInt(maxField.getText());
+                    if (maxPlayers > MAX_CAP) {
+                        showAlert("Error", "Max players cannot exceed " + MAX_CAP + "!");
+                        return null; // Stop the creation process if invalid.
+                    }
                     Game g = new Game();
                     g.setName(nameField.getText());
                     g.setMinPlayers(Integer.parseInt(minField.getText()));
