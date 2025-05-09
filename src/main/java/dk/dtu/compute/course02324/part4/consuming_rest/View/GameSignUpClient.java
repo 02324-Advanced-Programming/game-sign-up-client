@@ -340,9 +340,19 @@ public class GameSignUpClient extends Application {
                 .map(player->player.getName())
                 .collect(Collectors.joining(", "))
                 : "";
-
-        return String.format("[%d] %s (%d/%d) host : %s / joined players : %s",
-                g.getUid(), g.getName(), joined, g.getMaxPlayers(), g.getOwner().getName(), playerNames);
+        return String.format(
+                "[%d] %s%n" +                                     // game ID and name
+                        "Joined players : %d (min %d / max %d)%n" +       // count + limits
+                        "Host          : %s%n" +                          // owner
+                        "Players       : %s",                             // names list
+                g.getUid(),
+                g.getName(),
+                joined,
+                g.getMinPlayers(),
+                g.getMaxPlayers(),
+                g.getOwner().getName(),
+                playerNames
+        );
     }
 
     // Returns the currently selected Game object based on the list view.
