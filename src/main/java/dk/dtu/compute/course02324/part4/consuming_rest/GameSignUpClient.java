@@ -28,10 +28,20 @@ public class GameSignUpClient extends Application {
     private static final String BASE_URL = "http://localhost:8080/roborally";
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
+    private Label currentUserLabel;
 
     private User currentUser;
     private ListView<String> gameListView;
     private List<Game> games;
+    private MenuItem signUp;
+    private MenuItem signIn;
+    private MenuItem signOut;
+    private MenuItem showGames;
+    private MenuItem joinGame;
+    private MenuItem leaveGame;
+    private MenuItem deleteGame;
+    private MenuItem startGame;
+    private MenuItem createGame;
 
     public static void main(String[] args) {
         launch(args);
@@ -41,8 +51,12 @@ public class GameSignUpClient extends Application {
     public void start(Stage primaryStage) {
         MenuBar menuBar = createMenuBar();
         gameListView = new ListView<>();
+        updateSignMenuItems();
+        currentUserLabel = new Label("Not signed in");
+        currentUserLabel.setPadding(new Insets(5));
 
-        VBox root = new VBox(menuBar, gameListView);
+
+        VBox root = new VBox(menuBar, currentUserLabel, gameListView);
         root.setSpacing(10);
         root.setPadding(new Insets(10));
         primaryStage.setScene(new Scene(root, 600, 400));
@@ -52,21 +66,21 @@ public class GameSignUpClient extends Application {
 
     private MenuBar createMenuBar() {
         Menu userMenu = new Menu("User");
-        MenuItem signUp = new MenuItem("Sign Up");
-        MenuItem signIn = new MenuItem("Sign In");
-        MenuItem signOut = new MenuItem("Sign Out");
+        signUp = new MenuItem("Sign Up");
+        signIn = new MenuItem("Sign In");
+        signOut = new MenuItem("Sign Out");
         signUp.setOnAction(e -> signUpUser());
         signIn.setOnAction(e -> signInUser());
         signOut.setOnAction(e -> signOutUser());
         userMenu.getItems().addAll(signUp, signIn, signOut);
 
         Menu gameMenu = new Menu("Games");
-        MenuItem showGames = new MenuItem("Show Open Games");
-        MenuItem joinGame = new MenuItem("Join Selected Game");
-        MenuItem leaveGame = new MenuItem("Leave Selected Game");
-        MenuItem deleteGame = new MenuItem("Delete Selected Game");
-        MenuItem startGame = new MenuItem("Start Selected Game");
-        MenuItem createGame = new MenuItem("Create New Game");
+        showGames = new MenuItem("Show Open Games");
+        joinGame = new MenuItem("Join Selected Game");
+        leaveGame = new MenuItem("Leave Selected Game");
+        deleteGame = new MenuItem("Delete Selected Game");
+        startGame = new MenuItem("Start Selected Game");
+        createGame = new MenuItem("Create New Game");
         showGames.setOnAction(e -> updateGameList());
         joinGame.setOnAction(e -> joinSelectedGame());
         leaveGame.setOnAction(e -> leaveSelectedGame());
@@ -78,27 +92,45 @@ public class GameSignUpClient extends Application {
         return new MenuBar(userMenu, gameMenu);
     }
 
+    private void updateSignMenuItems() {
+        boolean signedIn = (currentUser != null);
+        signUp.setDisable(signedIn);
+        signIn.setDisable(signedIn);
+        signOut.setDisable(!signedIn);
+        joinGame.setDisable(!signedIn);
+        leaveGame.setDisable(!signedIn);
+        deleteGame.setDisable(!signedIn);
+        startGame.setDisable(!signedIn);
+        createGame.setDisable(!signedIn);
+    }
+    
     private void signUpUser() {
+        signUpUser(null);
+    }
+
+    private void signUpUser(String username) {
+        if (username == null || username.trim().isEmpty()) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("Enter username to register:");
         Optional<String> result = dialog.showAndWait();
-        if (currentUser != null) {
-            showAlert("Error", "You are already signed in as " + currentUser.getName() + ", please sign out first.");
-            return;
-        }
-        result.ifPresent(username -> {
+            if (result.isPresent()) {
+                username = result.get();
+            } else {
+                return;
+            }
             try {
                 User user = new User();
                 user.setUsername(username);
                 ResponseEntity<User> resp = restTemplate.postForEntity(
                         BASE_URL + "/users", user, User.class);
                 currentUser = resp.getBody();
+                updateCurrentUserLabel();
                 showAlert("Success", "Registered and signed in as " + currentUser.getName());
             }
             catch (RestClientException ex) {
                 showAlert("Error", "Registration failed: an unknown error occured " + ex.getMessage());
             }
-        });
+        };
     }
 
     private void signInUser() {
@@ -113,12 +145,25 @@ public class GameSignUpClient extends Application {
                         User.class
                 );
                 currentUser = response.getBody();
+                updateCurrentUserLabel();
                 showAlert("Success", "Signed in as " + currentUser.getName());
             }
             catch (HttpClientErrorException ex) {
                 //entered username that doesn't exist yet
-                if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                    showAlert("Error", "Sign in failed: User not found");
+                if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("User Not Found");
+                    confirm.setHeaderText("User '" + username + "' does not exist.");
+                    confirm.setContentText("Would you like to sign up with that username?");
+                    Optional<ButtonType> confirmationResult = confirm.showAndWait();
+
+                    if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK) {
+                        signUpUserWithUsername(username);
+                    } else {
+                        showAlert("Cancelled", "Sign in cancelled.");
+                    }
+                } else {
+                    showAlert("Error", "Sign in failed: " + ex.getMessage());
                 }
             }
             catch (Exception ex) {
@@ -128,19 +173,39 @@ public class GameSignUpClient extends Application {
         });
     }
 
-    private void signOutUser() {
-        if (currentUser == null) {
-            showAlert("Error", "No user is currently signed in.");
-            return;
+    private void signUpUserWithUsername(String username) {
+        try {
+            User user = new User();
+            user.setUsername(username);
+            ResponseEntity<User> resp = restTemplate.postForEntity(
+                    BASE_URL + "/users", user, User.class);
+            currentUser = resp.getBody();
+            updateCurrentUserLabel();
+            showAlert("Success", "Registered and signed in as " + currentUser.getName());
+        } catch (RestClientException ex) {
+            showAlert("Error", "Registration failed: " + ex.getMessage());
         }
+    }
+
+    private void signOutUser() {
         try {
             restTemplate.postForEntity(
                     BASE_URL + "/users/logout", currentUser, Void.class);
             showAlert("Success", "Signed out " + currentUser.getName());
             currentUser = null;
+            updateCurrentUserLabel();
         } catch (Exception ex) {
             showAlert("Error", "Sign out failed: " + ex.getMessage());
         }
+    }
+
+    private void updateCurrentUserLabel() {
+        if (currentUser != null) {
+            currentUserLabel.setText("Signed in as: " + currentUser.getName());
+        } else {
+            currentUserLabel.setText("Not signed in");
+        }
+        updateSignMenuItems();
     }
 
     private void updateGameList() {
@@ -161,8 +226,14 @@ public class GameSignUpClient extends Application {
 
     private String formatGameString(Game g) {
         int joined = g.getPlayers() != null ? g.getPlayers().size() : 0;
-        return String.format("[%d] %s (%d/%d) owner=%s",
-                g.getUid(), g.getName(), joined, g.getMaxPlayers(), g.getOwner().getName());
+        String playerNames =(g.getPlayers() != null && !g.getPlayers().isEmpty())
+                ? g.getPlayers().stream()
+                .map(player->player.getName())
+                .collect(Collectors.joining(", "))
+                : "";
+
+        return String.format("[%d] %s (%d/%d) host : %s / joined players : %s",
+                g.getUid(), g.getName(), joined, g.getMaxPlayers(), g.getOwner().getName(), playerNames);
     }
 
     private Game getSelectedGame() {
@@ -346,3 +417,5 @@ public class GameSignUpClient extends Application {
         });
     }
 }
+
+
